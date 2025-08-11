@@ -1,0 +1,510 @@
+/* Reset */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(180deg, #ff512f, #6a0dad, #150b1e);
+  background-attachment: fixed;
+  color: #fff;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+/* Dashboard Styles */
+.dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 25%, #5f27cd 75%, #2d3436 100%);
+  background-attachment: fixed;
+  color: white;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 2rem;
+  overflow-x: hidden;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 3rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.greeting h1 {
+  font-size: 3rem;
+  font-weight: 300;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.greeting .username {
+  font-weight: 700;
+  margin-top: -0.5rem;
+}
+
+.profile-avatar {
+  margin-top: 1rem;
+}
+
+.avatar-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Action Carousel */
+.action-carousel-container {
+  max-width: 800px;
+  margin: 0 auto 4rem auto;
+  position: relative;
+  height: 300px;
+}
+
+.action-carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.action-slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-card {
+  width: 90%;
+  max-width: 600px;
+  height: 250px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.action-card:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+.action-card h2 {
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.action-button {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 1rem 2rem;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.action-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.pagination-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 2rem;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.dot.active {
+  background: rgba(255, 255, 255, 0.9);
+  transform: scale(1.2);
+}
+
+/* Recent Vibes Section */
+
+.recent-vibes-section {
+ max-width: 1200px;
+  margin: 0 auto 4rem auto;
+  position: relative;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.vibe-scroll-container {
+  position: relative;
+  height: 100vh; /* Changed from height to min-height */
+  overflow: visible;
+  z-index: 2;
+}
+
+.vibe-boxes-container {
+   position: relative;
+  transform-style: preserve-3d;
+  perspective: 800px;
+  touch-action: pan-y;
+  height: 100%;
+  width:100%;
+}
+
+.vibe-box {
+  position: absolute;
+  transform-style: preserve-3d;
+  top: 50%;
+  left: 50%;
+  min-height: 320px;
+  min-width: 260px;
+  max-height: 380px;
+  max-width: 300px;
+  cursor: pointer;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s, box-shadow 0.3s;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+
+
+.vibe-box::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 100%;
+  width: 100%;
+  background-image: var(--cover);
+  background-size: cover;
+  background-position: center;
+  transform: translate(-50%, -50%) rotate(180deg) translate(0, -100%) translate(0, -0.5vmin);
+  opacity: 0.3;
+  border-radius: 20px;
+}
+
+.vibe-box::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(rgba(0, 0, 0, 0.8) 50%, transparent);
+  transform: translate(-50%, -50%) rotate(180deg) translate(0, -100%) translate(0, -0.5vmin) scale(1.01);
+  z-index: 2;
+  border-radius: 20px;
+}
+
+.vibe-box-content {
+  position: relative;
+  z-index: 3;
+  height: 100%;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.vibe-box-content img {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.vibe-info {
+  flex: 1;
+}
+
+.vibe-song-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.vibe-artist {
+  font-size: 0.9rem;
+  margin: 0 0 0.5rem 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.vibe-date {
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+}
+
+.vibe-journal {
+  font-size: 0.9rem;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0 0 1rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.vibe-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.vibe-tag {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.vibe-play-button {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: flex-end;
+}
+
+.vibe-play-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.1);
+}
+
+.play-icon {
+  width: 13px;
+  height: 13px;
+  color: white;
+}
+
+/* Navigation Controls */
+.vibe-controls {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: space-between;
+  width: 300px;
+  z-index: 100;
+}
+
+.vibe-nav-btn {
+  height: 60px;
+  width: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.vibe-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.vibe-nav-btn span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.vibe-nav-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Drag Proxy */
+.drag-proxy {
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+}
+
+/* Webkit Reflection Support */
+@supports (-webkit-box-reflect: below) {
+  .vibe-box {
+    -webkit-box-reflect: below 0.5vmin linear-gradient(transparent 0 50%, rgba(255, 255, 255, 0.1) 100%);
+  }
+
+  .vibe-box::after,
+  .vibe-box::before {
+    display: none;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  margin: 2rem 0;
+}
+
+.empty-state p {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem;
+  }
+
+  .greeting h1 {
+    font-size: 2rem;
+  }
+
+  .avatar-circle {
+    width: 60px;
+    height: 60px;
+  }
+
+  .action-card {
+    width: 95%;
+    height: 200px;
+    padding: 1.5rem;
+  }
+
+  .action-card h2 {
+    font-size: 1.4rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .vibe-box {
+    height: 35vmin;
+    width: 35vmin;
+    min-height: 280px;
+    min-width: 220px;
+  }
+
+  .vibe-controls {
+    width: 200px;
+  }
+
+  .vibe-nav-btn {
+    height: 50px;
+    width: 50px;
+  }
+
+  .vibe-nav-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vibe-box {
+    height: 45vmin;
+    width: 45vmin;
+    min-height: 240px;
+    min-width: 180px;
+  }
+
+  .vibe-box-content {
+    padding: 1rem;
+  }
+
+  .vibe-box-content img {
+    width: 60px;
+    height: 60px;
+  }
+
+  .vibe-song-title {
+    font-size: 1rem;
+  }
+
+  .vibe-artist {
+    font-size: 0.9rem;
+  }
+
+  .vibe-controls {
+    width: 150px;
+  }
+
+  .vibe-nav-btn {
+    height: 45px;
+    width: 45px;
+  }
+}

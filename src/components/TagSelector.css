@@ -1,0 +1,81 @@
+.tag-selector-container {
+  width: 100%;
+  position: relative;
+}
+
+.tag-input {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 8px;
+  min-height: 50px;
+  cursor: pointer;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  margin: 4px;
+  border-radius: 16px;
+  font-size: 14px;
+  color: #fff;
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: white;
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+
+.hidden-input {
+  border: none;
+  background: none;
+  flex-grow: 1;
+  outline: none;
+  color: #fff;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #1e1e1e;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  z-index: 10;
+}
+
+.dropdown-tag {
+  padding: 8px 12px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  color: #000;
+  font-weight: 500;
+}
+
+.dropdown-tag:hover {
+  opacity: 0.8;
+}
+
+.dropdown-footer {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.create-btn {
+  background: none;
+  color: #00B7FF;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
