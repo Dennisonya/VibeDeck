@@ -85,7 +85,7 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, audioRef }:
 
   const handleConnectSpotify = () => {
     const CLIENT_ID = "aa2a1529be174a57825cd51c8bcc7539"
-    const REDIRECT_URI = "http://127.0.0.1:5174/callback"
+    const REDIRECT_URI = "https://vibedeck1.netlify.app/callback"
     const SCOPES = [
       "streaming",
       "user-read-email",
