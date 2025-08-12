@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 export default function Callback (){
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("userInfo"));
+    console.log(user);
     useEffect(()=>{
         const params = new URLSearchParams(window.location.search);
         const code = params.get("code");
@@ -17,7 +18,7 @@ export default function Callback (){
                 localStorage.setItem("spotifyAccessToken", data.access_token);
                 localStorage.setItem("spotifyRefreshToken", data.refresh_token);
 
-                navigate(`/${user.id}/dashboard`)
+                navigate(`/${user.userId}/dashboard`)
             })
             .catch(console.error);
         }
