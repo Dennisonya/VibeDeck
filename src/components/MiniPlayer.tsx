@@ -61,6 +61,7 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, accessToken
   const [deviceId, setDeviceId] = useState<string | null>(null)
   const [currentPosition, setCurrentPosition] = useState(0)
   const [duration, setDuration] = useState(0)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!accessToken) return;
@@ -90,6 +91,7 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, accessToken
         // Removed position & duration updates here to handle in interval polling
         // But keep updating play/pause status immediately:
         setIsPlaying(!state.paused);
+        setLoading(false);
       });
 
       playerInstance.connect();
@@ -140,6 +142,8 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, accessToken
   const playTrack = () => {
     if (!deviceId || !track) return;
 
+    setLoading(true)
+
     fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
       method: "PUT",
       headers: {
@@ -149,7 +153,10 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, accessToken
       body: JSON.stringify({
         uris: [track.spotifyUri],
       }),
-    }).catch(console.error);
+    }).catch((err) => {
+      console.error(err)
+      setLoading(false);
+    });
   };
 
   const togglePlayPause = () => {
@@ -219,12 +226,18 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, accessToken
 
             <div className="progress-container">
               <span className="time-display">{formatTime(currentPosition)}</span>
+              {loading ? (
+            <div className="progress-bar loading">
+              <div className="loading-animation"></div>
+            </div>
+            ) : (
               <div className="progress-bar">
                 <div
                   className="progress-track"
                   style={{ width: `${(currentPosition / duration) * 100 || 0}%` }}
                 />
               </div>
+            )}
               <span className="time-display">{formatTime(duration)}</span>
             </div>
           </div>

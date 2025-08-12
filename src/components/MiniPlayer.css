@@ -172,6 +172,33 @@
   cursor: pointer;
 }
 
+.progress-bar.loading {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: #333;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.loading-animation {
+  position: absolute;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #86efac, #4ade80);
+  animation: loadingMove 1.2s linear infinite;
+  border-radius: 4px;
+}
+
+@keyframes loadingMove {
+  0% {
+    left: -40%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
 .progress-track {
   width: 100%;
   height: 4px;
