@@ -1,43 +1,40 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react"
 import "./MiniPlayer.css"
 
 declare global {
   interface Window {
-    Spotify?: SpotifyNamespace;
-    onSpotifyWebPlaybackSDKReady?: () => void;
+    Spotify?: SpotifyNamespace
+    onSpotifyWebPlaybackSDKReady?: () => void
   }
 
   interface SpotifyNamespace {
-    Player: new (options: SpotifyPlayerInit) => SpotifyPlayer;
+    Player: new (options: SpotifyPlayerInit) => SpotifyPlayer
   }
 
   interface SpotifyPlayerInit {
-    name: string;
-    getOAuthToken: (cb: (token: string) => void) => void;
-    volume?: number;
+    name: string
+    getOAuthToken: (cb: (token: string) => void) => void
+    volume?: number
   }
 
   interface SpotifyPlaybackState {
-    duration: number;
-    position: number;
-    paused: boolean;
+    duration: number
+    position: number
+    paused: boolean
   }
 
   interface SpotifyPlayer {
-    connect: () => Promise<boolean>;
-    disconnect: () => void;
-    pause: () => Promise<void>;
-    resume: () => Promise<void>;
-    seek: (position_ms: number) => Promise<void>;
-    getCurrentState: () => Promise<SpotifyPlaybackState | null>;
-    addListener: (
-      event: string,
-      callback: (state: any) => void
-    ) => boolean;
+    connect: () => Promise<boolean>
+    disconnect: () => void
+    pause: () => Promise<void>
+    resume: () => Promise<void>
+    seek: (position_ms: number) => Promise<void>
+    getCurrentState: () => Promise<SpotifyPlaybackState | null>
+    addListener: (event: string, callback: (state: any) => void) => boolean
   }
 }
 
@@ -53,7 +50,7 @@ interface MiniPlayerProps {
   track: Track
   isPlaying: boolean
   setIsPlaying: (playing: boolean) => void
-  accessToken: string 
+  accessToken: string
 }
 
 export default function MiniPlayer({ track, isPlaying, setIsPlaying, accessToken }: MiniPlayerProps) {
@@ -62,60 +59,65 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, accessToken
   const [currentPosition, setCurrentPosition] = useState(0)
   const [duration, setDuration] = useState(0)
 
-
   useEffect(() => {
-    if(!accessToken) return
+    if (!accessToken) return
 
-   if (!window.Spotify) {
-  const script = document.createElement("script");
-  script.src = "https://sdk.scdn.co/spotify-player.js";
-  script.async = true;
-  document.body.appendChild(script);
-}
+    let playerInstance: SpotifyPlayer | null = null
 
-window.onSpotifyWebPlaybackSDKReady = () => {
-  if (!window.Spotify) return;
-  
-  const player = new window.Spotify.Player({
-    name: "VibeDeck Player",
-    getOAuthToken: cb => cb(accessToken),
-    volume: 0.5,
-  });
+    // Setup the SDK ready callback
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      if (!window.Spotify) return
 
-  setPlayer(player);
+      // Cast for TS so no red lines
+      const SpotifyPlayerClass = window.Spotify.Player
 
-       player.addListener("ready", ({ device_id }) => {
+      playerInstance = new SpotifyPlayerClass({
+        name: "VibeDeck Player",
+        getOAuthToken: (cb) => cb(accessToken),
+        volume: 0.5,
+      })
+
+      setPlayer(playerInstance)
+
+      playerInstance.addListener("ready", ({ device_id }) => {
         console.log("Spotify Web Playback ready, device ID:", device_id)
         setDeviceId(device_id)
-      
       })
 
-      player.addListener("not_ready", ({ device_id }) => {
+      playerInstance.addListener("not_ready", ({ device_id }) => {
         console.log("Device ID is not ready:", device_id)
-
       })
 
-      player.addListener("player_state_changed", state => {
+      playerInstance.addListener("player_state_changed", (state) => {
         if (!state) return
+
         setCurrentPosition(state.position)
         setDuration(state.duration)
-
         setIsPlaying(!state.paused)
       })
 
-      player.connect()
+      playerInstance.connect()
     }
 
-    //cleanup
+    // Inject the Spotify SDK script if not loaded
+    if (!window.Spotify) {
+      const script = document.createElement("script")
+      script.src = "https://sdk.scdn.co/spotify-player.js"
+      script.async = true
+      document.body.appendChild(script)
+    } else {
+      // SDK already loaded? Fire callback manually
+      window.onSpotifyWebPlaybackSDKReady()
+    }
 
     return () => {
-      player?.disconnect()
+      if (playerInstance) playerInstance.disconnect()
+      delete window.onSpotifyWebPlaybackSDKReady
     }
-  }, [accessToken])
+  }, [accessToken, setIsPlaying])
 
-
-   const playTrack = () => {
-    if (!deviceId || !track) return
+  const playTrack = () => {
+    if (!deviceId || !track.spotifyUri) return
 
     fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
       method: "PUT",
@@ -124,16 +126,15 @@ window.onSpotifyWebPlaybackSDKReady = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        uris: [track.spotifyUri], // Use Spotify track URI for playback
+        uris: [track.spotifyUri],
       }),
     }).catch(console.error)
   }
 
-
   const togglePlayPause = () => {
-    if(!player) return
+    if (!player) return
 
-    player.getCurrentState().then(state => {
+    player.getCurrentState().then((state) => {
       if (!state) {
         playTrack()
         return
@@ -148,9 +149,9 @@ window.onSpotifyWebPlaybackSDKReady = () => {
   }
 
   const skipTime = (seconds: number) => {
-     if (!player) return
+    if (!player) return
 
-    player.getCurrentState().then(state => {
+    player.getCurrentState().then((state) => {
       if (!state) return
 
       const newPosition = Math.min(state.duration, Math.max(0, state.position + seconds * 1000))
@@ -158,15 +159,11 @@ window.onSpotifyWebPlaybackSDKReady = () => {
     })
   }
 
-
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60)
     const seconds = Math.floor(time % 60)
     return `${minutes}:${seconds.toString().padStart(2, "0")}`
   }
-
- const progressPercentage = duration > 0 ? (currentPosition / duration) * 100 : 0
-
 
   return (
     <div className="mini-player">
@@ -181,7 +178,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
           </div>
         </div>
 
-        {track.spotifyUri? (
+        {track.spotifyUri ? (
           <div className="player-controls">
             <div className="control-buttons">
               <button className="control-btn rewind" onClick={() => skipTime(-5)} title="Rewind 5s">
@@ -202,10 +199,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
             <div className="progress-container">
               <span className="time-display">{formatTime(currentPosition)}</span>
               <div className="progress-bar">
-                <div
-                className="progress-track"
-                style={{ width: `${(currentPosition / duration) * 100 || 0}%` }}
-              />
+                <div className="progress-track" style={{ width: `${(currentPosition / duration) * 100 || 0}%` }} />
               </div>
               <span className="time-display">{formatTime(duration)}</span>
             </div>
