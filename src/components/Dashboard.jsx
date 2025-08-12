@@ -24,7 +24,7 @@ export default function Dashboard() {
   const vibesScrollRef = useRef(null)
   const audioRef = useRef(null)
   const dragProxyRef = useRef(null)
-
+  const accessToken = JSON.parse(localStorage.getItem("spotifyAccessToken"))
   const vibesBoxesRef = useRef(null);
   const loopRef = useRef(null)
   const loopHeadRef = useRef(null)
@@ -114,7 +114,7 @@ const togglePlayer = async (vibeId, audioUrl, vibe,event) => {
       title: vibe.song_title,
       artist: vibe.artist,
       coverArt: vibe.image,
-      audioSrc: audioUrl,
+      spotifyUri: audioUrl,
       id: vibeId,
     })
     setActiveVibeId(vibeId);
@@ -508,7 +508,7 @@ const tags = [
         <MiniPlayer track={currentTrack}
         isPlaying={isPlaying}
         setIsPlaying={setIsPlaying}
-        audioRef={audioRef}
+        accessToken={accessToken}
         />
       )}
     </div>

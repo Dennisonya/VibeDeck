@@ -118,11 +118,11 @@ useEffect(() => {
   }
 
     async function handleSaveEntry(){
-        const {title, image, artist, preview_url} = selectedSong;
+        const {title, image, artist, spotify_url} = selectedSong;
         const vibeEntry = {
             songTitle: title,
             artist: artist,
-            link: preview_url,
+            link: spotify_url,
             journalText: journalEntry,
             mood: selectedMoodEmoji,
             tags: selectedMoodTags,

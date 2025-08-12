@@ -5,11 +5,50 @@ import { useState, useEffect, useRef } from "react"
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react"
 import "./MiniPlayer.css"
 
+
+declare global {
+  interface Window {
+    Spotify: typeof Spotify;
+    onSpotifyWebPlaybackSDKReady: () => void;
+  }
+
+  namespace Spotify {
+    interface PlayerInit {
+      name: string;
+      getOAuthToken: (cb: (token: string) => void) => void;
+      volume?: number;
+    }
+
+    interface PlaybackState {
+      duration: number;
+      position: number;
+      paused: boolean;
+    }
+
+    interface SpotifyPlayer {
+      connect: () => Promise<boolean>;
+      disconnect: () => void;
+      pause: () => Promise<void>;
+      resume: () => Promise<void>;
+      seek: (position_ms: number) => Promise<void>;
+      getCurrentState: () => Promise<PlaybackState | null>;
+      addListener: (
+        event: string,
+        callback: (state: any) => void
+      ) => boolean;
+    }
+
+    const Player: {
+      new (options: PlayerInit): SpotifyPlayer;
+    };
+  }
+}
+
 interface Track {
   title: string
   artist: string
   coverArt: string
-  audioSrc: string | null
+  spotifyUri: string | null
   id: string
 }
 
@@ -17,65 +56,109 @@ interface MiniPlayerProps {
   track: Track
   isPlaying: boolean
   setIsPlaying: (playing: boolean) => void
-  audioRef: React.RefObject<HTMLAudioElement>
+  accessToken: string 
 }
 
-export default function MiniPlayer({ track, isPlaying, setIsPlaying, audioRef }: MiniPlayerProps) {
-  const [currentTime, setCurrentTime] = useState(0)
+export default function MiniPlayer({ track, isPlaying, setIsPlaying, accessToken }: MiniPlayerProps) {
+  const [player, setPlayer] = useState<Spotify.SpotifyPlayer | null>(null)
+  const [deviceId, setDeviceId] = useState<string | null>(null)
+  const [currentPosition, setCurrentPosition] = useState(0)
   const [duration, setDuration] = useState(0)
-  const progressRef = useRef<HTMLDivElement>(null)
+
 
   useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
+    if(!accessToken) return
 
-    const updateTime = () => setCurrentTime(audio.currentTime)
-    const updateDuration = () => setDuration(audio.duration)
-
-    audio.addEventListener("timeupdate", updateTime)
-    audio.addEventListener("loadedmetadata", updateDuration)
-    audio.addEventListener("ended", () => setIsPlaying(false))
-
-    if (isPlaying) {
-      audio.play().catch(console.error)
+    if(!window.Spotify){
+      const script = document.createElement("script")
+      script.src = "https://sdk.scdn.co/spotify-player.js"
+      script.async = true
+      document.body.appendChild(script)
     }
+
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const player = new window.Spotify.Player({
+        name: "VibeDeck Player",
+        getOAuthToken: (cb) => cb(accessToken),
+        volume: 0.5,
+      })
+
+      setPlayer(player)
+
+       player.addListener("ready", ({ device_id }) => {
+        console.log("Spotify Web Playback ready, device ID:", device_id)
+        setDeviceId(device_id)
+      
+      })
+
+      player.addListener("not_ready", ({ device_id }) => {
+        console.log("Device ID is not ready:", device_id)
+
+      })
+
+      player.addListener("player_state_changed", state => {
+        if (!state) return
+        setCurrentPosition(state.position)
+        setDuration(state.duration)
+
+        setIsPlaying(!state.paused)
+      })
+
+      player.connect()
+    }
+
+    //cleanup
 
     return () => {
-      audio.removeEventListener("timeupdate", updateTime)
-      audio.removeEventListener("loadedmetadata", updateDuration)
-      audio.removeEventListener("ended", () => setIsPlaying(false))
+      player?.disconnect()
     }
-  }, [track, audioRef, setIsPlaying, isPlaying])
+  }, [accessToken])
+
+
+   const playTrack = () => {
+    if (!deviceId || !track) return
+
+    fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        uris: [track.spotifyUri], // Use Spotify track URI for playback
+      }),
+    }).catch(console.error)
+  }
+
 
   const togglePlayPause = () => {
-    const audio = audioRef.current
-    if (!audio) return
+    if(!player) return
 
-    if (isPlaying) {
-      audio.pause()
-    } else {
-      audio.play().catch(console.error)
-    }
-    setIsPlaying(!isPlaying)
+    player.getCurrentState().then(state => {
+      if (!state) {
+        playTrack()
+        return
+      }
+
+      if (state.paused) {
+        player.resume()
+      } else {
+        player.pause()
+      }
+    })
   }
 
   const skipTime = (seconds: number) => {
-    const audio = audioRef.current
-    if (!audio) return
+     if (!player) return
 
-    audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds))
+    player.getCurrentState().then(state => {
+      if (!state) return
+
+      const newPosition = Math.min(state.duration, Math.max(0, state.position + seconds * 1000))
+      player.seek(newPosition)
+    })
   }
 
-  const handleProgressClick = (e: React.MouseEvent) => {
-    const audio = audioRef.current
-    const progressBar = progressRef.current
-    if (!audio || !progressBar) return
-
-    const rect = progressBar.getBoundingClientRect()
-    const clickX = e.clientX - rect.left
-    const percentage = clickX / rect.width
-    audio.currentTime = percentage * audio.duration
-  }
 
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60)
@@ -83,23 +166,9 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, audioRef }:
     return `${minutes}:${seconds.toString().padStart(2, "0")}`
   }
 
-  const handleConnectSpotify = () => {
-    const CLIENT_ID = "aa2a1529be174a57825cd51c8bcc7539"
-    const REDIRECT_URI = "https://vibedeck1.netlify.app/callback"
-    const SCOPES = [
-      "streaming",
-      "user-read-email",
-      "user-read-private",
-      "user-modify-playback-state",
-      "user-read-playback-state",
-    ]
+ const progressPercentage = duration > 0 ? (currentPosition / duration) * 100 : 0
 
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}`;
-    window.location.href = authUrl;
-  }
 
-  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0
-   console.log(track.audioSrc);
   return (
     <div className="mini-player">
       <div className="mini-player-content">
@@ -113,7 +182,7 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, audioRef }:
           </div>
         </div>
 
-        {track.audioSrc ? (
+        {track.spotifyUri? (
           <div className="player-controls">
             <div className="control-buttons">
               <button className="control-btn rewind" onClick={() => skipTime(-5)} title="Rewind 5s">
@@ -132,11 +201,12 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, audioRef }:
             </div>
 
             <div className="progress-container">
-              <span className="time-display">{formatTime(currentTime)}</span>
-              <div className="progress-bar" ref={progressRef} onClick={handleProgressClick}>
-                <div className="progress-track">
-                  <div className="progress-fill" style={{ width: `${progressPercentage}%` }} />
-                </div>
+              <span className="time-display">{formatTime(currentPosition)}</span>
+              <div className="progress-bar">
+                <div
+                className="progress-track"
+                style={{ width: `${(currentPosition / duration) * 100 || 0}%` }}
+              />
               </div>
               <span className="time-display">{formatTime(duration)}</span>
             </div>
@@ -144,9 +214,6 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, audioRef }:
         ) : (
           <div className="connect-spotify">
             <p>This track doesn’t have a preview. Connect Spotify to play full songs.</p>
-            <button className="connect-btn" onClick={handleConnectSpotify}>
-              Connect to Spotify
-            </button>
           </div>
         )}
       </div>
