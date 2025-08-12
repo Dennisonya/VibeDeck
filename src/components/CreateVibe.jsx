@@ -40,7 +40,7 @@ export default function CreateVibe (){
     const moodDropdownRef = useRef(null)
     const searchRef = useRef(null)
     const fileInputRef = useRef(null)
-    const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+    const debounceTimeout = useRef(null);
 
 
     //Handle search
@@ -155,7 +155,7 @@ useEffect(() => {
 
     return (
         <div className="create-vibe">
-            <div className="creaet-vibe-container">
+            <div className="creat-vibe-container">
                 {/* Header */}
                 <div className="header">
                     <h1 className="logo">VibeDeck</h1>
