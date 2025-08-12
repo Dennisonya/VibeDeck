@@ -5,42 +5,39 @@ import { useState, useEffect, useRef } from "react"
 import { Play, Pause, SkipBack, SkipForward } from "lucide-react"
 import "./MiniPlayer.css"
 
-
 declare global {
   interface Window {
-    Spotify: typeof Spotify;
-    onSpotifyWebPlaybackSDKReady: () => void;
+    Spotify?: SpotifyNamespace;
+    onSpotifyWebPlaybackSDKReady?: () => void;
   }
 
-  namespace Spotify {
-    interface PlayerInit {
-      name: string;
-      getOAuthToken: (cb: (token: string) => void) => void;
-      volume?: number;
-    }
+  interface SpotifyNamespace {
+    Player: new (options: SpotifyPlayerInit) => SpotifyPlayer;
+  }
 
-    interface PlaybackState {
-      duration: number;
-      position: number;
-      paused: boolean;
-    }
+  interface SpotifyPlayerInit {
+    name: string;
+    getOAuthToken: (cb: (token: string) => void) => void;
+    volume?: number;
+  }
 
-    interface SpotifyPlayer {
-      connect: () => Promise<boolean>;
-      disconnect: () => void;
-      pause: () => Promise<void>;
-      resume: () => Promise<void>;
-      seek: (position_ms: number) => Promise<void>;
-      getCurrentState: () => Promise<PlaybackState | null>;
-      addListener: (
-        event: string,
-        callback: (state: any) => void
-      ) => boolean;
-    }
+  interface SpotifyPlaybackState {
+    duration: number;
+    position: number;
+    paused: boolean;
+  }
 
-    const Player: {
-      new (options: PlayerInit): SpotifyPlayer;
-    };
+  interface SpotifyPlayer {
+    connect: () => Promise<boolean>;
+    disconnect: () => void;
+    pause: () => Promise<void>;
+    resume: () => Promise<void>;
+    seek: (position_ms: number) => Promise<void>;
+    getCurrentState: () => Promise<SpotifyPlaybackState | null>;
+    addListener: (
+      event: string,
+      callback: (state: any) => void
+    ) => boolean;
   }
 }
 
@@ -60,7 +57,7 @@ interface MiniPlayerProps {
 }
 
 export default function MiniPlayer({ track, isPlaying, setIsPlaying, accessToken }: MiniPlayerProps) {
-  const [player, setPlayer] = useState<Spotify.SpotifyPlayer | null>(null)
+  const [player, setPlayer] = useState<SpotifyPlayer | null>(null)
   const [deviceId, setDeviceId] = useState<string | null>(null)
   const [currentPosition, setCurrentPosition] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -69,21 +66,23 @@ export default function MiniPlayer({ track, isPlaying, setIsPlaying, accessToken
   useEffect(() => {
     if(!accessToken) return
 
-    if(!window.Spotify){
-      const script = document.createElement("script")
-      script.src = "https://sdk.scdn.co/spotify-player.js"
-      script.async = true
-      document.body.appendChild(script)
-    }
+   if (!window.Spotify) {
+  const script = document.createElement("script");
+  script.src = "https://sdk.scdn.co/spotify-player.js";
+  script.async = true;
+  document.body.appendChild(script);
+}
 
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      const player = new window.Spotify.Player({
-        name: "VibeDeck Player",
-        getOAuthToken: (cb) => cb(accessToken),
-        volume: 0.5,
-      })
+window.onSpotifyWebPlaybackSDKReady = () => {
+  if (!window.Spotify) return;
+  
+  const player = new window.Spotify.Player({
+    name: "VibeDeck Player",
+    getOAuthToken: cb => cb(accessToken),
+    volume: 0.5,
+  });
 
-      setPlayer(player)
+  setPlayer(player);
 
        player.addListener("ready", ({ device_id }) => {
         console.log("Spotify Web Playback ready, device ID:", device_id)

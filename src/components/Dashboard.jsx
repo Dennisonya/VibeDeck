@@ -24,7 +24,7 @@ export default function Dashboard() {
   const vibesScrollRef = useRef(null)
   const audioRef = useRef(null)
   const dragProxyRef = useRef(null)
-  const accessToken = JSON.parse(localStorage.getItem("spotifyAccessToken"))
+  const accessToken = localStorage.getItem("spotifyAccessToken")
   const vibesBoxesRef = useRef(null);
   const loopRef = useRef(null)
   const loopHeadRef = useRef(null)
