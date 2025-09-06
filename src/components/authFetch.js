@@ -1,5 +1,11 @@
 const authFetch = async (url, navigate) =>{
-    const token = localStorage.getItem("token");
+    const userInfo = localStorage.getItem("userInfo");
+    if (!userInfo) {
+        navigate('/');
+        return null;
+    }
+    
+    const { token } = JSON.parse(userInfo);
 
     const res = await fetch(url, {
         headers: {
@@ -7,7 +13,7 @@ const authFetch = async (url, navigate) =>{
         }
     });
     if (res.status === 401 || res.status=== 403){
-        localStorage.removeItem("token");
+        localStorage.removeItem("userInfo");
         navigate('/');
         return null;
     }

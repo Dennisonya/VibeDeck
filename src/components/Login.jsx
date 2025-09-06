@@ -50,11 +50,12 @@ const CLIENT_ID = "aa2a1529be174a57825cd51c8bcc7539";
                 email: `${data.user.email}`
             })
         );
-      setMessage("Login successful!");
+      setMessage("Login successful! Connecting to Spotify...");
       // redirect or do something after login
       handleConnectSpotify()
     } catch (err) {
-      setMessage(err.message);
+      console.error("Login error:", err);
+      setMessage(err.message || "Login failed. Please try again.");
     }
   };
 
