@@ -20,13 +20,10 @@ export default function SuggestionsPage() {
     const fetchRecommendations = async () => {
       try {
         setLoading(true);
-        const response = await authFetch('/api/users/recommendations');
-        
-        if (!response.ok) {
+        const data = await authFetch('/api/recommendations', navigate);
+        if (!data) {
           throw new Error('Failed to fetch recommendations');
         }
-        
-        const data = await response.json();
         setRecommendations(data.results || []);
         
         // Extract colors for each recommendation
