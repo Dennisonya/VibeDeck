@@ -6,6 +6,7 @@ import CreateVibe from "./components/CreateVibe.jsx";
 import ViewEntries from "./components/ViewEntries.jsx";
 import EntryDetails from "./components/EntryDetails.jsx";
 import Callback from "./components/Callback.jsx";
+import SuggestionsPage from "./components/SuggestionsPage.jsx";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/entries" element={<ViewEntries/>}/>
         <Route path="/entries/:id" element={<EntryDetails />} />
         <Route path="/callback" element={<Callback/>}/>
+        <Route path="/songs" element={<SuggestionsPage/>}/>
       </Routes>
     </BrowserRouter>
   );
