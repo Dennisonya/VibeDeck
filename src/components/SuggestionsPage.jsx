@@ -40,7 +40,7 @@ export default function SuggestionsPage() {
           }
         }
         setSlideColors(colors);
-        
+         console.log(data)
       } catch (error) {
         console.error('Error fetching recommendations:', error);
         setError(error.message);
