@@ -26,7 +26,7 @@ export default function EntryDetails() {
    
     if (!userInfo?.token) return
 
-    fetch(`http://localhost:5000/api/users/vibes/${id}`, {
+    fetch(`http://localhost:3001/api/users/vibes/${id}`, {
       headers: {
         method: "GET",
         Authorization: `Bearer ${userInfo.token}`,
@@ -122,7 +122,7 @@ export default function EntryDetails() {
 
     if (showDeleteConfirm) {
       try {
-        const res = await fetch(`http://localhost:5000/api/users/vibes/${id}`, {
+        const res = await fetch(`http://localhost:3001/api/users/vibes/${id}`, {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${userInfo.token}`,

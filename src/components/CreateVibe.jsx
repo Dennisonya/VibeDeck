@@ -46,7 +46,7 @@ export default function CreateVibe (){
     //Handle search
     const handleSearch = async (searchQuery) => {
     try {
-        const res = await fetch(`http://localhost:5000/api/users/spotify/search?query=${encodeURIComponent(searchQuery)}`, {
+        const res = await fetch(`http://localhost:3001/api/users/spotify/search?query=${encodeURIComponent(searchQuery)}`, {
             method: "GET",
         });
         const data = await res.json();
@@ -131,7 +131,7 @@ useEffect(() => {
         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
         console.log(userInfo.token);
     try{
-        const res = await fetch("http://localhost:5000/api/users/vibes", {
+        const res = await fetch("http://localhost:3001/api/users/vibes", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

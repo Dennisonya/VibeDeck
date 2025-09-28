@@ -62,7 +62,7 @@ export default function ViewEntries ({onBack}) {
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     if (!userInfo?.token) return;
-    fetch("http://localhost:5000/api/users/userVibes", {
+    fetch("http://localhost:3001/api/users/userVibes", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

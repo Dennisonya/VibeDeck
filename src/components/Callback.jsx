@@ -26,7 +26,7 @@ export default function Callback (){
         console.log("User info:", userInfo);
 
         if(code){
-            fetch(`http://localhost:5000/api/users/spotify/callback?code=${code}`)
+            fetch(`http://localhost:3001/api/users/spotify/callback?code=${code}`)
             .then(res=> {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);

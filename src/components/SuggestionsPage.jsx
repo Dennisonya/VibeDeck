@@ -20,7 +20,7 @@ export default function SuggestionsPage() {
     const fetchRecommendations = async () => {
       try {
         setLoading(true);
-        const data = await authFetch('http://localhost:5000/api/users/recommendations', navigate);
+        const data = await authFetch('http://localhost:3001/api/users/recommendations', navigate);
         if (!data) {
           throw new Error('Failed to fetch recommendations');
         }
