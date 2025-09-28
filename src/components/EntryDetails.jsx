@@ -27,8 +27,8 @@ export default function EntryDetails() {
     if (!userInfo?.token) return
 
     fetch(`http://localhost:3001/api/users/vibes/${id}`, {
+      method: "GET",
       headers: {
-        method: "GET",
         Authorization: `Bearer ${userInfo.token}`,
       },
     })
