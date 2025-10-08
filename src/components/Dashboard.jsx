@@ -198,10 +198,11 @@ const togglePlayer = async (vibeId, audioUrl, vibe,event) => {
         display: "block",
         opacity: 1, // Ensure visible
         scale: 1, // Ensure default scale
+        force3D: true,
       })
 
-      const STAGGER = 0.1
-      const DURATION = 1
+      const STAGGER = 0.15
+      const DURATION = 1.2
       const OFFSET = 0
 
       // Create the main loop timeline
@@ -246,7 +247,7 @@ const togglePlayer = async (vibeId, audioUrl, vibe,event) => {
               rotateY: 50,
               immediateRender: false,
               duration: 1,
-              ease: "power4.inOut",
+              ease: "power2.inOut",
             },
             0,
           )
@@ -257,6 +258,7 @@ const togglePlayer = async (vibeId, audioUrl, vibe,event) => {
               z: 100,
               scale: 1.25,
               duration: 0.1,
+              ease:"power2.out",
               repeat: 1,
               yoyo: true,
             },
@@ -311,8 +313,8 @@ const togglePlayer = async (vibeId, audioUrl, vibe,event) => {
           LOOP_HEAD.totalTime(POSITION_WRAP(PLAYHEAD.position))
         },
         paused: true,
-        duration: 0.25,
-        ease: "power3",
+        duration: 0.4,
+        ease: "power2.out",
       })
 
       scrubRef.current = SCRUB
@@ -322,7 +324,7 @@ const togglePlayer = async (vibeId, audioUrl, vibe,event) => {
         trigger: vibesScrollRef.current,
         start: "top center",
         end: "bottom center",
-        scrub: 1,
+        scrub: 1.5,
         onUpdate: (self) => {
           const progress = self.progress
           const NEW_POS = progress * LOOP_HEAD.duration()
@@ -339,6 +341,7 @@ const togglePlayer = async (vibeId, audioUrl, vibe,event) => {
       const scrollToPosition = (position) => {
         const SNAP_POS = SNAP(position)
         SCRUB.vars.position = SNAP_POS * LOOP_HEAD.duration()
+        SCRUB.duration(0.6) // For smoother transitions
         SCRUB.invalidate().restart()
       }
 
@@ -363,7 +366,7 @@ const togglePlayer = async (vibeId, audioUrl, vibe,event) => {
             this.startOffset = SCRUB.vars.position
           },
           onDrag() {
-            SCRUB.vars.position = this.startOffset + (this.startX - this.x) * 0.001
+            SCRUB.vars.position = this.startOffset + (this.startX - this.x) * 0.008
             SCRUB.invalidate().restart()
           },
           onDragEnd() {
