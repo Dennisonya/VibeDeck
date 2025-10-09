@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import './SuggestionsPage.css';
 import { extractDominantColor } from '../utils/colorExtractor';
 import authFetch from './authFetch';
+import { userInfo } from 'os';
 
 export default function SuggestionsPage() {
   const [recommendations, setRecommendations] = useState([]);
@@ -14,13 +15,14 @@ export default function SuggestionsPage() {
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const audioRef = useRef(null);
   const navigate = useNavigate();
-
+  const user = JSON.stringify(localStorage.getItem(userInfo))
   // Fetch recommendations from API
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
         setLoading(true);
-        const data = await authFetch('http://localhost:3001/api/users/recommendations', navigate);
+        const spotifyToken = localStorage.getItem("spotfiyAccessToken");
+        const data = await authFetch(`http://localhost:3001/api/users/recommendations?spotifyToken=${spotifyToken}`, navigate);
         if (!data) {
           throw new Error('Failed to fetch recommendations');
         }
@@ -167,7 +169,7 @@ export default function SuggestionsPage() {
           <div className="error-icon">🎧</div>
           <h2 className="error-message">No recommendations yet</h2>
           <p>Start adding some vibes to get personalized music suggestions!</p>
-          <button className="retry-button" onClick={() => navigate('/dashboard')}>
+          <button className="retry-button" onClick={() => navigate(`${user.userId}/dashboard`)}>
             Go to Dashboard
           </button>
         </div>
