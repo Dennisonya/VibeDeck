@@ -2,8 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import './SuggestionsPage.css';
 import { extractDominantColor } from '../utils/colorExtractor';
-import authFetch from './authFetch';
-import { userInfo } from 'os';
 
 export default function SuggestionsPage() {
   const [recommendations, setRecommendations] = useState([]);
@@ -15,17 +13,50 @@ export default function SuggestionsPage() {
   const [isAutoPlaying, setIsAutoPlaying] = useState(false);
   const audioRef = useRef(null);
   const navigate = useNavigate();
-  const user = JSON.stringify(localStorage.getItem(userInfo))
+
   // Fetch recommendations from API
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
         setLoading(true);
-        const spotifyToken = localStorage.getItem("spotfiyAccessToken");
-        const data = await authFetch(`http://localhost:3001/api/users/recommendations?spotifyToken=${spotifyToken}`, navigate);
-        if (!data) {
-          throw new Error('Failed to fetch recommendations');
+        
+        // Get user info and Spotify token
+        const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+        const spotifyToken = localStorage.getItem("spotifyAccessToken");
+        
+        if (!userInfo?.token) {
+          navigate('/');
+          return;
         }
+        
+        if (!spotifyToken) {
+          setError("Please connect your Spotify account");
+          setLoading(false);
+          return;
+        }
+
+        // Make request with both tokens
+        const response = await fetch('http://localhost:3001/api/users/recommendations', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${userInfo.token}`,
+            'X-Spotify-Token': spotifyToken, // Pass Spotify token in header
+          },
+        });
+
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("userInfo");
+          navigate('/');
+          return;
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to fetch recommendations');
+        }
+
+        const data = await response.json();
         setRecommendations(data.results || []);
         
         // Extract colors for each recommendation
@@ -42,7 +73,8 @@ export default function SuggestionsPage() {
           }
         }
         setSlideColors(colors);
-         console.log(data)
+        console.log('Recommendations loaded:', data);
+        
       } catch (error) {
         console.error('Error fetching recommendations:', error);
         setError(error.message);
@@ -52,19 +84,18 @@ export default function SuggestionsPage() {
     };
 
     fetchRecommendations();
-  }, []);
+  }, [navigate]);
 
   // Auto-advance slides
   useEffect(() => {
     if (recommendations.length > 1 && isAutoPlaying) {
       const interval = setInterval(() => {
         setCurrentIndex(prev => (prev + 1) % recommendations.length);
-      }, 8000); // Change slide every 8 seconds
+      }, 8000);
       
       return () => clearInterval(interval);
     }
   }, [recommendations.length, isAutoPlaying]);
-
   // Handle audio playback
   const togglePlay = () => {
     const currentSong = recommendations[currentIndex];
@@ -87,12 +118,10 @@ export default function SuggestionsPage() {
     }
   };
 
-  // Handle audio ended
   const handleAudioEnded = () => {
     setIsPlaying(false);
   };
 
-  // Navigation functions
   const goToNext = () => {
     setCurrentIndex(prev => (prev + 1) % recommendations.length);
   };
@@ -132,7 +161,6 @@ export default function SuggestionsPage() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [currentIndex, recommendations.length]);
 
-  // Loading state
   if (loading) {
     return (
       <div className="suggestions-page">
@@ -145,14 +173,13 @@ export default function SuggestionsPage() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="suggestions-page">
         <div className="error">
           <div className="error-icon">🎵</div>
           <h2 className="error-message">Oops! Something went wrong</h2>
-          <p>We couldn't load your recommendations right now.</p>
+          <p>{error}</p>
           <button className="retry-button" onClick={() => window.location.reload()}>
             Try Again
           </button>
@@ -161,7 +188,6 @@ export default function SuggestionsPage() {
     );
   }
 
-  // No recommendations
   if (recommendations.length === 0) {
     return (
       <div className="suggestions-page">
@@ -169,7 +195,7 @@ export default function SuggestionsPage() {
           <div className="error-icon">🎧</div>
           <h2 className="error-message">No recommendations yet</h2>
           <p>Start adding some vibes to get personalized music suggestions!</p>
-          <button className="retry-button" onClick={() => navigate(`${user.userId}/dashboard`)}>
+          <button className="retry-button" onClick={() => navigate('/dashboard')}>
             Go to Dashboard
           </button>
         </div>
@@ -200,7 +226,6 @@ export default function SuggestionsPage() {
               }}
             >
               <div className="slide-content">
-                {/* Story text */}
                 <div className="story-text">
                   {index === 0 && (
                     <>
@@ -214,7 +239,6 @@ export default function SuggestionsPage() {
                   )}
                 </div>
 
-                {/* Album art */}
                 <div className="album-art-container">
                   <img 
                     src={song.image} 
@@ -234,14 +258,12 @@ export default function SuggestionsPage() {
                   </div>
                 </div>
 
-                {/* Song info */}
                 <div className="song-info">
                   <h1 className="song-title">{song.title}</h1>
                   <h2 className="song-artist">{song.artist}</h2>
                   <p className="song-reason">{song.reason}</p>
                 </div>
 
-                {/* Navigation */}
                 <div className="navigation">
                   <button 
                     className="nav-button" 
@@ -272,7 +294,6 @@ export default function SuggestionsPage() {
         })}
       </div>
 
-      {/* Progress indicator */}
       <div className="progress-container">
         {recommendations.map((_, index) => (
           <div
@@ -284,4 +305,4 @@ export default function SuggestionsPage() {
       </div>
     </div>
   );
-} 
+}
