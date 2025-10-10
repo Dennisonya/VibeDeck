@@ -120,3 +120,46 @@ export default function Callback() {
         </div>
     );
 }
+
+export function handleSpotifyRedirectAndSave() {
+  // Spotify can return tokens either in query params (if you used response_type=token)
+  // or you might have the backend redirect with access_token in query/hash. This covers both.
+  try {
+    const url = window.location.href;
+    const hash = window.location.hash; // e.g., #access_token=...&refresh_token=... or might be empty
+    const search = window.location.search; // ?access_token=...&refresh_token=...
+    const params = new URLSearchParams(hash.startsWith('#') ? hash.substring(1) : (search || ''));
+
+    const access_token = params.get('access_token');
+    const refresh_token = params.get('refresh_token');
+    const expires_in = params.get('expires_in');
+
+    if (!access_token) {
+      // Nothing to store — return false so caller knows
+      return false;
+    }
+
+    const expiryMs = expires_in ? Date.now() + Number(expires_in) * 1000 : null;
+
+    const spotifyToken = {
+      accessToken: access_token,
+      refreshToken: refresh_token || null,
+      expiresAt: expiryMs, // ms timestamp
+    };
+
+    localStorage.setItem('spotifyToken', JSON.stringify(spotifyToken));
+
+    // Clean URL so tokens aren't visible
+    if (hash) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    } else {
+      const cleanUrl = window.location.origin + window.location.pathname + window.location.search;
+      history.replaceState(null, '', cleanUrl);
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Failed to capture spotify token from redirect:', err);
+    return false;
+  }
+}

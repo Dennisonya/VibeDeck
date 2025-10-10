@@ -14,6 +14,7 @@ const CLIENT_ID = "aa2a1529be174a57825cd51c8bcc7539";
     "streaming",
     "user-read-email",
     "user-read-private",
+    "user-top-read",
     "user-modify-playback-state",
     "user-read-playback-state",
   ].join(" ");

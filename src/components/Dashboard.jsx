@@ -5,6 +5,7 @@ import  { ScrollTrigger } from "gsap/ScrollTrigger";
 import MiniPlayer from "./MiniPlayer.tsx";
 import { Play, Pause, ChevronLeft, ChevronRight } from "lucide-react"
 import { useState, useRef, useEffect } from 'react';
+import { handleSpotifyRedirectAndSave } from './spotifyCallbackHandler';
 import EntryDetails from "./EntryDetails.jsx";
 import "./Dashboard.css";
 
@@ -123,7 +124,20 @@ const togglePlayer = async (vibeId, audioUrl, vibe,event) => {
 
 };
 
+// Handle Spotify redirect and token saving
+useEffect(() => {
+  const tokenSaved = handleSpotifyRedirectAndSave();
+  if (tokenSaved) {
+    console.log("✅ Spotify tokens saved from redirect");
+    triggerHaptic("success")
+    // Optionally, you can navigate to a different page after saving the token
+    // navigate("/dashboard");
+  } else {
+    console.log("ℹ️ No Spotify tokens found in URL");
+  }
+}, []);
 
+// Fetch user vibes on component mount
   useEffect(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo"));
     if (!userInfo?.token) return;

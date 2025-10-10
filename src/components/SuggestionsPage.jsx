@@ -22,8 +22,7 @@ export default function SuggestionsPage() {
         
         // Get user info and Spotify token
         const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-        const spotifyToken = localStorage.getItem("spotifyAccessToken");
-        
+        const spotifyToken = JSON.parse(localStorage.getItem('spotifyToken') || '{}');        
         if (!userInfo?.token) {
           navigate('/');
           return;
@@ -41,7 +40,7 @@ export default function SuggestionsPage() {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${userInfo.token}`,
-            'X-Spotify-Token': spotifyToken, // Pass Spotify token in header
+            'X-Spotify-Token': spotifyToken.accessToken || '', // Pass Spotify token in header
           },
         });
 
